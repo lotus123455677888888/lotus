@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lotus</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a0f3c 0%, #2d1b5e 25%, #3d1a7a 50%, #4a2a8a 75%, #5c3aa0 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(251, 191, 36, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(245, 158, 11, 0.2) 0%, transparent 50%);
+      animation: shimmer 8s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.9; }
+    }
+    
+    .container {
+      max-width: 600px;
+      width: 100%;
+      height: 100%;
+      max-height: 100vh;
+      max-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .game-box {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px 16px;
+      box-shadow: 0 25px 50px -12px rgba(251, 191, 36, 0.6);
+      border: 3px solid rgba(251, 191, 36, 0.8);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    
+    .logo {
+      font-size: clamp(50px, 12vw, 80px);
+      text-align: center;
+      margin-bottom: 12px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    h1 {
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: bold;
+      background: linear-gradient(to right, #fbbf24, #f59e0b, #fde047);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    
+    .rules {
+      background: linear-gradient(135deg, rgba(26, 15, 60, 0.8), rgba(45, 27, 94, 0.8));
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      color: #fef3c7;
+      font-size: clamp(14px, 3.5vw, 16px);
+      line-height: 1.6;
+      text-align: center;
+    }
+    
+    button {
+      width: 100%;
+      background: linear-gradient(to right, #6d28d9, #7c3aed, #8b5cf6);
+      color: #fef3c7;
+      font-weight: bold;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: clamp(16px, 4vw, 18px);
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.6);
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .button-group button {
+      flex: 1;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .control-btn {
+      width: auto;
+      padding: 8px 12px;
+      font-size: clamp(18px, 4.5vw, 20px);
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .stat {
+      flex: 1;
+      background: linear-gradient(135deg, rgba(26, 15, 60, 0.85), rgba(45, 27, 94, 0.85));
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      border-radius: 12px;
+      padding: 8px;
+      color: #fef3c7;
+      font-weight: bold;
+      text-align: center;
+      font-size: clamp(13px, 3.5vw, 16px);
+    }
+    
+    .target-box {
+      background: linear-gradient(135deg, rgba(26, 15, 60, 0.8), rgba(45, 27, 94, 0.7));
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    
+    .target-box p {
+      color: #fef3c7;
+      margin-bottom: 6px;
+      font-size: clamp(14px, 3.5vw, 16px);
+    }
+    
+    .target-flower {
+      font-size: clamp(50px, 12vw, 70px);
+      margin: 6px 0;
+    }
+    
+    .progress {
+      color: #fde68a;
+      font-size: clamp(15px, 4vw, 18px);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-width: 500px;
+      margin: 0 auto;
+      flex: 1;
+    }
+    
+    .flower-btn {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 41, 59, 0.7));
+      border: 2px solid rgba(251, 191, 36, 0.6);
+      border-radius: 12px;
+      font-size: clamp(36px, 10vw, 48px);
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 0;
+      min-height: 60px;
+    }
+    
+    .flower-btn:hover:not(.correct):not(.wrong) {
+      transform: scale(1.08);
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.6), rgba(74, 222, 128, 0.5));
+      box-shadow: 0 5px 20px rgba(74, 222, 128, 0.6);
+    }
+    
+    .flower-btn.correct {
+      background: rgba(22, 163, 74, 0.5) !important;
+      border-color: #4ade80;
+      animation: correctPulse 0.5s;
+      pointer-events: none;
+    }
+    
+    .flower-btn.wrong {
+      background: rgba(220, 38, 38, 0.5) !important;
+      border-color: #f87171;
+      animation: wrongShake 0.5s;
+      pointer-events: none;
+    }
+    
+    @keyframes correctPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    .final-score {
+      background: rgba(15, 23, 42, 0.7);
+      border: 2px solid rgba(251, 191, 36, 0.7);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .final-score p {
+      color: #fef3c7;
+      margin-bottom: 8px;
+    }
+    
+    .score-value {
+      font-size: 48px;
+      font-weight: bold;
+      background: linear-gradient(to right, #fbbf24, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .overlay-content {
+      background: linear-gradient(135deg, #1a0f3c, #2d1b5e);
+      border: 4px solid #fbbf24;
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      max-width: 400px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="game-box">
+      <!-- Start Screen -->
+      <div id="startScreen">
+        <div class="logo">🪷</div>
+        <h1>Lotus Flower Game</h1>
+        <div class="rules">
+          Find all target flowers in each level!<br>
+          <strong>Goal:</strong> Complete as many levels as you can<br>
+          <strong>Points:</strong> +10 points per level completed<br>
+          <strong>Warning:</strong> 5 mistakes per level = Game Over
+        </div>
+        <div class="final-score" style="margin-bottom: 16px;">
+          <p>High Score</p>
+          <div class="score-value" id="highScoreDisplay">0</div>
+        </div>
+        <button id="startButton">Start New Game</button>
+        <button id="continueButton" class="hidden" style="margin-top: 12px; background: linear-gradient(to right, #059669, #10b981);">Continue Game</button>
+      </div>
+
+      <!-- Game Screen -->
+      <div id="gameScreen" class="hidden">
+        <div class="controls">
+          <button class="control-btn" id="pauseButton">⏸️</button>
+          <div style="flex: 1;"></div>
+          <button class="control-btn" id="soundButton"><span id="soundIcon">🔊</span></button>
+        </div>
+
+        <div class="stats">
+          <div class="stat">Level <span id="level">1</span></div>
+          <div class="stat">⏱️ <span id="timer">10</span>s</div>
+          <div class="stat">❌ <span id="mistakes">0</span>/5</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">Score <span id="currentScore">0</span></div>
+          <div class="stat">High Score <span id="highScore">0</span></div>
+        </div>
+
+        <div class="target-box">
+          <p>Find This Flower:</p>
+          <div class="target-flower" id="targetFlower">🪷</div>
+          <p class="progress"><span id="found">0</span>/<span id="total">0</span> found</p>
+        </div>
+
+        <div class="grid" id="flowerGrid"></div>
+      </div>
+
+      <!-- Game Over Screen -->
+      <div id="gameOverScreen" class="hidden">
+        <div class="logo" id="endEmoji">💔</div>
+        <h1 id="endTitle">Game Over</h1>
+        <p id="endMessage" style="color: #e9d5ff; font-size: 18px; margin-bottom: 24px; text-align: center;"></p>
+        <div class="final-score">
+          <p>Final Score</p>
+          <div class="score-value" id="finalScore">0</div>
+          <p style="color: #fde68a; margin-top: 8px;">Levels Completed: <span id="totalLevels">0</span></p>
+          <p style="color: #fde68a; margin-top: 4px;">High Score: <span id="finalHighScore">0</span></p>
+        </div>
+        <div class="button-group">
+          <button id="tryAgainButton">Try Again</button>
+          <button id="menuButton">Main Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Overlay -->
+  <div id="pauseOverlay" class="overlay hidden">
+    <div class="overlay-content">
+      <div style="font-size: 64px; margin-bottom: 16px;">⏸️</div>
+      <h1 style="margin-bottom: 24px;">PAUSED</h1>
+      <div style="color: #fef3c7; margin-bottom: 16px; font-size: 18px;">
+        Score: <span id="pauseScore">0</span><br>
+        Level: <span id="pauseLevel">1</span>
+      </div>
+      <button style="margin-bottom: 12px;" id="resumeButton">Resume Game</button>
+      <button style="margin-bottom: 12px;" id="saveMenuButton">Save & Main Menu</button>
+      <button id="quitButton">Quit Game</button>
+    </div>
+  </div>
+
+  <script>
+    const FLOWERS = ['🌸', '🏵️', '🌹', '💐', '🌷', '🌻', '🌼', '🌺', '💮', '🪷'];
+    const STORAGE_KEY = 'lotus_game_save';
+    const HIGH_SCORE_KEY = 'lotus_high_score';
+    
+    let state = {
+      level: 1,
+      mistakes: 0,
+      totalMistakes: 0,
+      timeLeft: 7,
+      targetFlower: '',
+      grid: [],
+      selected: [],
+      totalTargets: 0,
+      foundTargets: 0,
+      timer: null,
+      paused: false,
+      soundEnabled: true,
+      gameActive: false,
+      score: 0,
+      highScore: 0
+    };
+
+    // Initialize event listeners when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load high score
+      loadHighScore();
+      
+      // Button event listeners
+      document.getElementById('startButton').addEventListener('click', startGame);
+      document.getElementById('continueButton').addEventListener('click', continueGame);
+      document.getElementById('pauseButton').addEventListener('click', togglePause);
+      document.getElementById('soundButton').addEventListener('click', toggleSound);
+      document.getElementById('tryAgainButton').addEventListener('click', startGame);
+      document.getElementById('menuButton').addEventListener('click', goToMenu);
+      document.getElementById('resumeButton').addEventListener('click', resumeGame);
+      document.getElementById('saveMenuButton').addEventListener('click', saveAndGoToMenu);
+      document.getElementById('quitButton').addEventListener('click', quitGame);
+
+      // Check for saved game
+      checkForSavedGame();
+    });
+
+    function loadHighScore() {
+      const savedHighScore = localStorage.getItem(HIGH_SCORE_KEY);
+      if (savedHighScore) {
+        state.highScore = parseInt(savedHighScore);
+      }
+      updateHighScoreDisplay();
+    }
+
+    function saveHighScore() {
+      localStorage.setItem(HIGH_SCORE_KEY, state.highScore.toString());
+      updateHighScoreDisplay();
+    }
+
+    function updateHighScoreDisplay() {
+      document.getElementById('highScoreDisplay').textContent = state.highScore;
+      document.getElementById('highScore').textContent = state.highScore;
+      document.getElementById('finalHighScore').textContent = state.highScore;
+    }
+
+    function checkForSavedGame() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const savedState = JSON.parse(saved);
+          if (savedState.gameActive) {
+            document.getElementById('continueButton').classList.remove('hidden');
+          }
+        } catch (e) {
+          console.log('No valid saved game found');
+        }
+      }
+    }
+
+    function continueGame() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const savedState = JSON.parse(saved);
+          if (savedState.gameActive) {
+            state = { 
+              ...savedState,
+              paused: false,
+              timer: null
+            };
+            
+            showGameScreen();
+            updateDisplay();
+            renderGrid();
+            startTimer();
+            state.gameActive = true;
+          }
+        } catch (e) {
+          startGame();
+        }
+      }
+    }
+
+    function startGame() {
+      // Only clear saved game if starting completely new game
+      if (!state.gameActive) {
+        clearSavedGame();
+      }
+      
+      state = {
+        level: 1,
+        mistakes: 0,
+        totalMistakes: 0,
+        timeLeft: 7,
+        targetFlower: '',
+        grid: [],
+        selected: [],
+        totalTargets: 0,
+        foundTargets: 0,
+        timer: null,
+        paused: false,
+        soundEnabled: state.soundEnabled,
+        gameActive: true,
+        score: 0,
+        highScore: state.highScore // Keep the high score
+      };
+      
+      showGameScreen();
+      initLevel();
+    }
+
+    function showGameScreen() {
+      document.getElementById('startScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('pauseOverlay').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+    }
+
+    function initLevel() {
+      const targetCount = Math.min(3 + Math.floor(state.level / 2), 6);
+      state.targetFlower = FLOWERS[Math.floor(Math.random() * FLOWERS.length)];
+      state.grid = generateGrid(state.targetFlower, targetCount);
+      state.totalTargets = targetCount;
+      state.foundTargets = 0;
+      state.timeLeft = 7;
+      state.mistakes = 0;
+      state.selected = [];
+      
+      updateDisplay();
+      renderGrid();
+      startTimer();
+    }
+
+    function generateGrid(target, count) {
+      const grid = [];
+      for (let i = 0; i < count; i++) grid.push(target);
+      const others = FLOWERS.filter(f => f !== target);
+      while (grid.length < 16) {
+        grid.push(others[Math.floor(Math.random() * others.length)]);
+      }
+      return grid.sort(() => Math.random() - 0.5);
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('flowerGrid');
+      grid.innerHTML = '';
+      state.grid.forEach((flower, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'flower-btn';
+        btn.textContent = flower;
+        
+        if (state.selected.includes(i)) {
+          btn.classList.add(flower === state.targetFlower ? 'correct' : 'wrong');
+          btn.disabled = true;
+        }
+        
+        btn.addEventListener('click', () => selectFlower(i));
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectFlower(index) {
+      if (state.selected.includes(index) || state.paused) return;
+      
+      state.selected.push(index);
+      const flower = state.grid[index];
+      
+      if (flower === state.targetFlower) {
+        playSound('correct');
+        state.foundTargets++;
+        
+        if (state.foundTargets === state.totalTargets) {
+          clearInterval(state.timer);
+          
+          // Add points for completing level
+          state.score += 10;
+          
+          // Update high score if current score is higher
+          if (state.score > state.highScore) {
+            state.highScore = state.score;
+            saveHighScore();
+          }
+          
+          state.level++;
+          saveGameState(); // Save progress after completing level
+          setTimeout(initLevel, 800);
+        }
+      } else {
+        playSound('wrong');
+        state.mistakes++;
+        state.totalMistakes++;
+        
+        if (state.mistakes >= 5) {
+          clearInterval(state.timer);
+          endGame(false);
+          return;
+        }
+      }
+      
+      updateDisplay();
+      renderGrid();
+      saveGameState(); // Auto-save after each move
+    }
+
+    function startTimer() {
+      if (state.timer) clearInterval(state.timer);
+      state.timer = setInterval(() => {
+        if (state.paused) return;
+        state.timeLeft--;
+        updateDisplay();
+        
+        if (state.timeLeft <= 0) {
+          clearInterval(state.timer);
+          endGame(false, 'Time ran out!');
+        }
+      }, 1000);
+    }
+
+    function updateDisplay() {
+      document.getElementById('level').textContent = state.level;
+      document.getElementById('timer').textContent = state.timeLeft;
+      document.getElementById('mistakes').textContent = state.mistakes;
+      document.getElementById('targetFlower').textContent = state.targetFlower;
+      document.getElementById('found').textContent = state.foundTargets;
+      document.getElementById('total').textContent = state.totalTargets;
+      document.getElementById('currentScore').textContent = state.score;
+      document.getElementById('highScore').textContent = state.highScore;
+      document.getElementById('pauseScore').textContent = state.score;
+      document.getElementById('pauseLevel').textContent = state.level;
+    }
+
+    function endGame(won, msg) {
+      state.gameActive = false;
+      clearSavedGame(); // Clear saved game when game over
+      
+      // Update high score one last time
+      if (state.score > state.highScore) {
+        state.highScore = state.score;
+        saveHighScore();
+      }
+      
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.remove('hidden');
+      
+      document.getElementById('endEmoji').textContent = won ? '🎉' : '💔';
+      document.getElementById('endTitle').textContent = won ? 'You Win!' : 'Game Over';
+      document.getElementById('endMessage').textContent = msg || (won ? 'Amazing! You completed all levels!' : 'Too many mistakes!');
+      document.getElementById('finalScore').textContent = state.score;
+      document.getElementById('totalLevels').textContent = state.level - 1;
+      document.getElementById('finalHighScore').textContent = state.highScore;
+    }
+
+    function goToMenu() {
+      if (state.timer) clearInterval(state.timer);
+      state.paused = false;
+      state.gameActive = false;
+      document.getElementById('pauseOverlay').classList.add('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('gameOverScreen').classList.add('hidden');
+      document.getElementById('startScreen').classList.remove('hidden');
+      checkForSavedGame();
+    }
+
+    function saveAndGoToMenu() {
+      saveGameState(); // Save game when going to menu
+      goToMenu();
+    }
+
+    function quitGame() {
+      clearSavedGame(); // Clear saved game when quitting
+      goToMenu();
+    }
+
+    function togglePause() {
+      state.pa
